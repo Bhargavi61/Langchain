@@ -2,6 +2,27 @@ from pdfminer.high_level import extract_text
 from elasticsearch import Elasticsearch
 import os
 
+
+from elasticsearch import Elasticsearch
+
+# Connect to Elasticsearch
+es = Elasticsearch("http://localhost:9200/")
+
+# Create an index with a specific mapping
+es.indices.create(
+    index="my_index",
+    body={
+        "mappings": {
+            "properties": {
+                "filename": {"type": "text"},
+                "content": {"type": "text"}
+            }
+        }
+    },
+    ignore=400  # Ignore "index already exists" error
+)
+
+
 # Function to extract text from a PDF
 def extract_text_from_pdf(pdf_path):
     return extract_text(pdf_path)
