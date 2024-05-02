@@ -1,7 +1,6 @@
 import PyPDF2
 import os
 
-# Define a function to extract text from PDFs
 def extract_text_from_pdfs(pdf_folder):
     extracted_data = []
     for file in os.listdir(pdf_folder):
@@ -15,7 +14,6 @@ def extract_text_from_pdfs(pdf_folder):
                 extracted_data.append({"file_name": file, "text": pdf_text})
     return extracted_data
 
-# Save extracted data to a JSON file
 import json
 pdf_folder = "path/to/your/pdfs"
 extracted_data = extract_text_from_pdfs(pdf_folder)
