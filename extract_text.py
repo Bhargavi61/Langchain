@@ -1,67 +1,23 @@
-from pdfminer.high_level import extract_text
-from elasticsearch import Elasticsearch
+import PyPDF2
 import os
 
+# Define a function to extract text from PDFs
+def extract_text_from_pdfs(pdf_folder):
+    extracted_data = []
+    for file in os.listdir(pdf_folder):
+        if file.endswith(".pdf"):
+            file_path = os.path.join(pdf_folder, file)
+            with open(file_path, 'rb') as f:
+                pdf_reader = PyPDF2.PdfFileReader(f)
+                pdf_text = ''
+                for page_num in range(pdf_reader.getNumPages()):
+                    pdf_text += pdf_reader.getPage(page_num).extractText()
+                extracted_data.append({"file_name": file, "text": pdf_text})
+    return extracted_data
 
-from elasticsearch import Elasticsearch
-
-# Connect to Elasticsearch
-es = Elasticsearch("http://localhost:9200/")
-
-# Create an index with a specific mapping
-es.indices.create(
-    index="my_index",
-    body={
-        "mappings": {
-            "properties": {
-                "filename": {"type": "text"},
-                "content": {"type": "text"}
-            }
-        }
-    },
-    ignore=400  # Ignore "index already exists" error
-)
-
-
-# Function to extract text from a PDF
-def extract_text_from_pdf(pdf_path):
-    return extract_text(pdf_path)
-
-# Connect to Elasticsearch
-es = Elasticsearch()
-
-# Create the index if it doesn't exist
-index_name = "pdf_data"
-if not es.indices.exists(index_name):
-    mapping = {
-        "mappings": {
-            "properties": {
-                "filename": {"type": "text"},
-                "content": {"type": "text"}
-            }
-        }
-    }
-    es.indices.create(index=index_name, body=mapping)
-
-# Extract text from PDFs and index it
-pdf_directory = "data/your_pdfs"  # Path to your PDFs
-pdf_texts = []
-
-# Extract text and index it in Elasticsearch
-for filename in os.listdir(pdf_directory):
-    if filename.endswith(".pdf"):
-        file_path = os.path.join(pdf_directory, filename)
-        text = extract_text_from_pdf(file_path)
-        pdf_texts.append({
-            "filename": filename,
-            "content": text
-        })
-    
-    if pdf_texts[-1]["content"].strip():  # Ensure it's not empty
-        es.index(
-            index=index_name,
-            body={
-                "filename": pdf_texts[-1]["filename"],
-                "content": pdf_texts[-1]["content"]
-            }
-        )
+# Save extracted data to a JSON file
+import json
+pdf_folder = "path/to/your/pdfs"
+extracted_data = extract_text_from_pdfs(pdf_folder)
+with open("extracted_data.json", "w") as json_file:
+    json.dump(extracted_data, json_file)
