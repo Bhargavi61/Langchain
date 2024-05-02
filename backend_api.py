@@ -7,15 +7,12 @@ from sentence_transformers import SentenceTransformer
 
 app = FastAPI()
 
-# Load FAISS index and metadata
 index = faiss.read_index("faiss_index.index")
 with open("metadata.json", "r") as metadata_file:
     metadata = json.load(metadata_file)
 
-# Load the sentence transformer model
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
-# Define a request model
 class QuestionRequest(BaseModel):
     question: str
 
